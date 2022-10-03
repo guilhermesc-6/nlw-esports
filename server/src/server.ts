@@ -29,7 +29,7 @@ app.get("/games", async (request, response) => {
 });
 
 app.post("/games/:gameId/ads", async (request, response) => {
-  const gameId = request.params.gameId;
+  const gameId: any = request.params.gameId;
   const body = request.body;
 
   const ad = await prisma.ad.create({
@@ -98,4 +98,4 @@ app.get("/games/:id/ads", async (request, response) => {
   );
 });
 
-app.listen(3333);
+app.listen(process.env.PORT || 3333);
