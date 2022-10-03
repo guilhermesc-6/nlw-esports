@@ -21,7 +21,7 @@ export function GameInfo() {
   }
 
   useEffect(() => {
-    axios("http://localhost:3333/games").then((response) =>
+    axios(`${import.meta.env.VITE_API_URL}/games`).then((response) =>
       response.data.map((item: Game) => {
         if (item.id === gameId) {
           setBanner(item.bannerUrl);
@@ -32,8 +32,8 @@ export function GameInfo() {
 
   useEffect(() => {
     if (adId.length) {
-      axios(`http://localhost:3333/ads/${adId}/discord`).then((response) =>
-        setDiscord(response.data.discord)
+      axios(`${import.meta.env.VITE_API_URL}/ads/${adId}/discord`).then(
+        (response) => setDiscord(response.data.discord)
       );
     }
   }, [adId]);

@@ -18,11 +18,11 @@ const router = createBrowserRouter([
     element: <GameInfo />,
     loader: async ({ params }) => {
       let data;
-      await axios(`http://localhost:3333/games/${params.gameId}/ads`).then(
-        (response) => {
-          data = response.data;
-        }
-      );
+      await axios(
+        `${import.meta.env.VITE_API_URL}/games/${params.gameId}/ads`
+      ).then((response) => {
+        data = response.data;
+      });
       return data;
     },
   },
