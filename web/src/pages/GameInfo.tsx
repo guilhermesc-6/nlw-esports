@@ -97,9 +97,10 @@ export function GameInfo() {
             <span>Adicione no discord</span>
             <span
               className='w-56 h-12 bg-zinc-900 flex gap-3 text-zinc-200 items-center justify-center px-2 py-3 cursor-pointer'
-              onClick={(e: any) =>
-                navigator.clipboard.writeText(e.target.textContent)
-              }
+              onClick={(e: any) => {
+                navigator.clipboard.writeText(e.target.textContent);
+                alert("discord copiado!");
+              }}
             >
               {discord}
             </span>
