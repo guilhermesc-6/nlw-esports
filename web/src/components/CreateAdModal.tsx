@@ -3,6 +3,7 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Select from "@radix-ui/react-select";
 import axios from "axios";
+import { useForm, SubmitHandler } from "react-hook-form";
 
 import { Input } from "./Form/input";
 import { CaretDown, CaretUp, Check, GameController } from "phosphor-react";
@@ -13,24 +14,33 @@ interface Game {
   title: string;
 }
 
+export interface InputTypes {
+  name: string;
+  yearsPlaying: number;
+  discord: string;
+  hourStart: string;
+  hourEnd: string;
+}
+
 export function CreateAdModal() {
   const [games, setGames] = useState<Game[]>([]);
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [useVoiceChannel, setUseVoiceChannel] = useState<boolean>(false);
   const [gameId, setGameId] = useState<string>("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<InputTypes>();
 
-  const handleCreateAd = async (event: FormEvent) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.target as HTMLFormElement);
-    const data = Object.fromEntries(formData);
-
-    if (!data.name) {
-      return;
+  const handleCreateAd: SubmitHandler<InputTypes> = async (data) => {
+    if (gameId === "") {
+      return alert("Selecione um game.");
     }
+    console.log(data, weekDays.map(Number), useVoiceChannel);
 
     try {
-      await axios.post(`http://localhost:3333/games/${gameId}/ads`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/games/${gameId}/ads`, {
         name: data.name,
         yearsPlaying: data.yearsPlaying,
         discord: data.discord,
@@ -48,7 +58,7 @@ export function CreateAdModal() {
   };
 
   useEffect(() => {
-    axios("http://localhost:3333/games").then((response) =>
+    axios(`${import.meta.env.VITE_API_URL}/games`).then((response) =>
       setGames(response.data)
     );
   }, []);
@@ -62,7 +72,7 @@ export function CreateAdModal() {
         </Dialog.Title>
 
         <form
-          onSubmit={handleCreateAd}
+          onSubmit={handleSubmit(handleCreateAd)}
           className='mt-8 flex flex-col gap-4'
         >
           <div className='flex flex-col gap-2'>
@@ -113,34 +123,53 @@ export function CreateAdModal() {
             </Select.Root>
           </div>
 
-          <div className='flex flex-col gap-2'>
+          <div className='flex flex-col gap-2 relative'>
             <label htmlFor='name'>Seu nome (ou nickname)</label>
             <Input
-              id='name'
-              name='name'
+              label='name'
               placeholder='Como te chamam dentro do game?'
+              register={register}
+              required
             />
+            {errors.name && (
+              <p className='absolute -bottom-5 text-red-400 text-xs'>
+                Informe o seu nome !
+              </p>
+            )}
           </div>
 
           <div className='grid grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
+            <div className='flex flex-col gap-2 relative'>
               <label htmlFor='yearsPlaying'>Joga há quantos anos?</label>
               <Input
                 type='number'
                 placeholder='Tudo bem ser ZERO'
-                id='yearsPlaying'
-                name='yearsPlaying'
+                label='yearsPlaying'
+                register={register}
+                required
               />
+              {errors.yearsPlaying && (
+                <p className='absolute -bottom-5 text-red-400 text-xs'>
+                  Este campo é obrigatório.
+                </p>
+              )}
             </div>
 
-            <div className='flex flex-col gap-2'>
+            <div className='flex flex-col gap-2 relative'>
               <label htmlFor='discord'>Qual seu Discord?</label>
               <Input
                 type='text'
-                id='discord'
-                name='discord'
+                label='discord'
                 placeholder='Usuario#0000'
+                register={register}
+                required
+                pattern={/^([A-Z])\w+[#][0-9]{4}$/gi}
               />
+              {errors.discord && (
+                <p className='absolute -bottom-5 text-red-400 text-xs'>
+                  Informe um discord válido !
+                </p>
+              )}
             </div>
           </div>
 
@@ -229,19 +258,26 @@ export function CreateAdModal() {
 
             <div className='flex flex-col gap-2 flex-1'>
               <label htmlFor='hourStart'>Qual horário do dia?</label>
-              <div className='grid grid-cols-2 gap-2'>
+              <div className='grid grid-cols-2 gap-2 relative'>
                 <Input
                   type='time'
                   placeholder='De'
-                  id='hourStart'
-                  name='hourStart'
+                  label='hourStart'
+                  register={register}
+                  required
                 />
                 <Input
                   type='time'
                   placeholder='Até'
-                  id='hourEnd'
-                  name='hourEnd'
+                  label='hourEnd'
+                  register={register}
+                  required
                 />
+                {errors.hourEnd && (
+                  <p className='absolute -bottom-5 text-red-400 text-xs'>
+                    Informe um horário válido!
+                  </p>
+                )}
               </div>
             </div>
           </div>
