@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { useKeenSlider } from "keen-slider/react"; // import from 'keen-slider/react.es' for to get an ES module
+
 import { GameBanner } from "./GameBanner";
 
 import { CaretLeft, CaretRight } from "phosphor-react";
@@ -6,19 +8,13 @@ import { CaretLeft, CaretRight } from "phosphor-react";
 import "keen-slider/keen-slider.min.css";
 
 import { Game } from "../App";
-import { useEffect, useState } from "react";
 
 interface CrouselProps {
   games: Game[];
 }
 
 export function Carousel({ games }: CrouselProps) {
-  const [sliderRef, instanceRef] = useKeenSlider({
-    created() {
-      instanceRef.current?.update({ slides: 1 });
-    },
-    loop: true,
-    initial: 0,
+  const sliderOptions = {
     breakpoints: {
       "(min-width: 300px)": {
         slides: { perView: 1, spacing: 5 },
@@ -38,10 +34,21 @@ export function Carousel({ games }: CrouselProps) {
       "(min-width: 900px)": {
         slides: { perView: 6, spacing: 24 },
       },
+      "(min-width: 1200px)": {
+        slides: { perView: 6, spacing: 24 },
+      },
     },
-    slides: { perView: 1, origin: "center" },
-    mode: "free",
-  });
+    slides: { perView: 6, spacing: 24 },
+    loop: true,
+    initial: 0,
+  };
+  const [sliderRef, instanceRef] = useKeenSlider();
+
+  useEffect(() => {
+    instanceRef.current?.update({
+      ...sliderOptions,
+    });
+  }, [instanceRef, sliderOptions]);
 
   return (
     <div className='w-full flex items-center mt-16'>
@@ -57,12 +64,12 @@ export function Carousel({ games }: CrouselProps) {
 
       <div
         ref={sliderRef}
-        className='keen-slider grid grid-cols-6 relative lg:place-items-center'
+        className='keen-slider relative lg:place-items-center'
       >
         {games.map((game) => {
           return (
             <div
-              className='keen-slider__slide  w-auto h-auto rounded-lg overflow-hidden '
+              className='keen-slider__slide  w-auto h-auto rounded-lg overflow-hidden flex-grow'
               key={game.id}
             >
               <GameBanner

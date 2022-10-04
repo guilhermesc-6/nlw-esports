@@ -68,6 +68,7 @@ export function GameInfo() {
               {game.map((item) => {
                 return (
                   <GameCard
+                    key={item.id}
                     data={item}
                     onConnect={handleConnectDiscord}
                   />
