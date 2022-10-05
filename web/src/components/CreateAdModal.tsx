@@ -6,7 +6,13 @@ import axios from "axios";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 import { Input } from "./Form/input";
-import { CaretDown, CaretUp, Check, GameController } from "phosphor-react";
+import {
+  CaretDown,
+  CaretUp,
+  Check,
+  GameController,
+  SpinnerGap,
+} from "phosphor-react";
 import { FormEvent, useEffect, useState } from "react";
 
 interface Game {
@@ -23,6 +29,7 @@ export interface InputTypes {
 }
 
 export function CreateAdModal() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [games, setGames] = useState<Game[]>([]);
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [useVoiceChannel, setUseVoiceChannel] = useState<boolean>(false);
@@ -30,14 +37,16 @@ export function CreateAdModal() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<InputTypes>();
 
   const handleCreateAd: SubmitHandler<InputTypes> = async (data) => {
+    setIsLoading(true);
     if (gameId === "") {
+      setIsLoading(false);
       return alert("Selecione um game.");
     }
-    console.log(data, weekDays.map(Number), useVoiceChannel);
 
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/games/${gameId}/ads`, {
@@ -51,10 +60,16 @@ export function CreateAdModal() {
       });
 
       alert("Anúncio criado com sucesso!");
+      reset();
+      setWeekDays([]);
+      setUseVoiceChannel(false);
+      setGameId("");
     } catch (error) {
       alert("Erro ao criar o anúncio");
       console.log(error);
     }
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -83,7 +98,10 @@ export function CreateAdModal() {
               Qual o game?
             </label>
 
-            <Select.Root onValueChange={setGameId}>
+            <Select.Root
+              onValueChange={setGameId}
+              value={gameId}
+            >
               <Select.Trigger className='bg-zinc-900 py-3 px-4 rounded text-sm  flex items-center justify-between'>
                 <Select.Value
                   placeholder='Selecione o game que deseja jogar'
@@ -310,10 +328,17 @@ export function CreateAdModal() {
             </Dialog.Close>
             <button
               type='submit'
-              className='bg-violet-500 px-5 h-12 rounded-md font-semibold flex items-center gap-3 hover:bg-violet-600'
+              className='bg-violet-500 px-5 h-12 rounded-md font-semibold flex items-center gap-3 hover:bg-violet-600 disabled:bg-violet-500 disabled:cursor-wait'
+              disabled={isLoading}
             >
-              <GameController size={24} />
-              Encontrar duo
+              {isLoading ? (
+                <SpinnerGap className='w-6 h-6 transition-all animate-spin' />
+              ) : (
+                <>
+                  <GameController size={24} />
+                  Encontrar duo
+                </>
+              )}
             </button>
           </footer>
         </form>
